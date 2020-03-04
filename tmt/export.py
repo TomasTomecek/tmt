@@ -7,8 +7,8 @@ from click import echo, style
 import subprocess
 import tmt.utils
 import nitrate
-import pprint
 import email
+import yaml
 import fmf
 import os
 
@@ -140,8 +140,8 @@ def export_to_nitrate():
         fmf_id = create_fmf_id(path=os.path.abspath('.'),
                                name=fmf_case.name)[0]
 
-        struct_field.set('fmf', pprint.pformat(fmf_id))
-        echo(style('fmf: ', fg='green') + pprint.pformat(fmf_id))
+        struct_field.set('fmf', yaml.dump(fmf_id))
+        echo(style('fmf:\n', fg='green') + yaml.dump(fmf_id))
 
         fmf_warning = """Test case was ported to fmf and is maintaned in git.
 Any changes made here might be overwritten.
@@ -182,8 +182,8 @@ def create_fmf_id(path='.', name=''):
         case_names = [x.name for x in list(tree.prune(
             names=[os.path.abspath('.')[len(tree.root):]]))]
 
-    fmf_ids = list()
+    fmf_id = list()
     for name in case_names:
-        fmf_ids.append({'url': url, 'ref': ref, 'path': path, 'name': name})
+        fmf_id.append({'url': url, 'ref': ref, 'path': path, 'name': name})
 
-    return fmf_ids
+    return fmf_id
