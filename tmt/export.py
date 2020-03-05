@@ -145,7 +145,7 @@ def export_to_nitrate():
 
         fmf_warning = """Test case was ported to fmf and is maintaned in git.
 Any changes made here might be overwritten.
-More information here: https://tmt.readthedocs.io/en/latest/stories/cli.html#id14\n\n"""
+More information here: https://tmt.readthedocs.io/en/latest/questions.html#nitrate-testcase-ported-to-tmt\n\n"""
         if fmf_warning not in struct_field.header():
             struct_field.header(fmf_warning + struct_field.header())
 
