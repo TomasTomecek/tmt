@@ -468,7 +468,7 @@ def convert(context, paths, makefile, nitrate, purpose, **kwargs):
 @click.option(
     '-d', '--debug', is_flag=True,
     help='Provide as much debugging details as possible.')
-def export(context, nitrate, format_, **kwargs):
+def export(context, format_, **kwargs):
     """ Export test data into the desired format. """
     tmt.Test._context = context
     for test in context.obj.tree.tests():
