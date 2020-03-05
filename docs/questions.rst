@@ -29,7 +29,7 @@ Note that the vagrant plugin installation should be done under
 a regular user.
 
 
-Nitrate testcase ported to tmt
+Nitrate Migration
 ------------------------------------------------------------------
 
 If a nitrate testcase is ported to tmt then any changes made to it in nitrate
