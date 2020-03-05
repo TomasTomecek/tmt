@@ -1,0 +1,4 @@
+summary: Check environment variables handling
+tier: 1
+environment:
+    TESTING: WORKS
