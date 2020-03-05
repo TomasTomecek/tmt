@@ -466,9 +466,6 @@ def convert(context, paths, makefile, nitrate, purpose, **kwargs):
     '--format', 'format_', default='yaml', show_default=True, metavar='FORMAT',
     help='Output format.')
 @click.option(
-    '--nitrate / --no-nitrate', default=False,
-    help='Export test metadata to Nitrate')
-@click.option(
     '-d', '--debug', is_flag=True,
     help='Provide as much debugging details as possible.')
 def export(context, nitrate, format_, **kwargs):
@@ -477,7 +474,7 @@ def export(context, nitrate, format_, **kwargs):
     for test in context.obj.tree.tests():
         echo(test.export(format_=format_))
 
-    if nitrate:
+    if format_ == "nitrate":
         tmt.export.export_to_nitrate()
 
 
