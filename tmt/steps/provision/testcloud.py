@@ -1,4 +1,5 @@
 import re
+import subprocess
 import os
 import shlex
 import time
@@ -324,4 +325,9 @@ class ProvisionTestcloud(ProvisionBase):
 
     def destroy(self):
         """ Remove the container """
+        if self.option('login'):
+            self.info('instance', 'login', 'green')
+            p = subprocess.Popen(
+                ['ssh'] + self.ssh_args + [self.ssh_user_host])
+            p.communicate()
         self.instance.stop()
