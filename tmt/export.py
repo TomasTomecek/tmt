@@ -133,9 +133,7 @@ def export_to_nitrate(fmf_case):
             pass
 
     # fmf identifer
-    # TODO first element?
-    fmf_id = create_fmf_id(path=os.path.abspath('.'),
-                            name=fmf_case.name)[0]
+    fmf_id = create_fmf_id(name=fmf_case.name)
 
     struct_field.set('fmf', yaml.dump(fmf_id))
     echo(style('fmf id:\n', fg='green') + yaml.dump(fmf_id))
@@ -157,32 +155,29 @@ More information here: https://tmt.readthedocs.io/en/latest/questions.html#nitra
     return 0
 
 
-# TODO Rewrite
-# TODO which path to use? will always be called current fmf tree(? also nested trees?)
-def create_fmf_id(path='.', name=''):
-    """
-    Create fmf identifier for every case in given directory or specific one
-
-    Returns list of dictionaries with fmf identifiers for each case found in argument path.
-    If argument name was specified returns a list with single dictionary with id for given test case.
-    """
+def create_fmf_id(name=''):
+    """ Create fmf identifier for test case """
 
     origin = subprocess.run(["git", "config", "--get", "remote.origin.url"],
                             capture_output=True).stdout.strip().decode("utf-8")
-    url = origin.split('@')[-1]
+    if origin.startswith('ssh://'):
+        url = 'git://' + origin.split('@')[-1]
+    else:
+        url = origin
+
     ref = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"],
                          capture_output=True).stdout.strip().decode("utf-8")
-    # TODO path is fmf root, relative to git
-    tree = fmf.Tree(path)
-    path = tree.root
-    if name:
-        case_names = [name]
-    else:
-        case_names = [x.name for x in list(tree.prune(
-            names=[os.path.abspath('.')[len(tree.root):]]))]
 
-    fmf_id = list()
-    for name in case_names:
-        fmf_id.append({'url': url, 'ref': ref, 'path': path, 'name': name})
+    git_root = subprocess.run(["git", "rev-parse", "--show-toplevel"],
+                            capture_output=True).stdout.strip().decode("utf-8")
+
+    fmf_root = fmf.Tree(os.path.abspath('.')).root
+
+    if git_root == fmf_root:
+        path = '.'
+    else:
+        path = fmf_root[len(git_root):]
+
+    fmf_id = {'url': url, 'ref': ref, 'path': path, 'name': name}
 
     return fmf_id
