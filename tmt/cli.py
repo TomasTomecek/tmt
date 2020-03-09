@@ -472,10 +472,10 @@ def export(context, format_, **kwargs):
     """ Export test data into the desired format. """
     tmt.Test._context = context
     for test in context.obj.tree.tests():
-        echo(test.export(format_=format_))
-
-    if format_ == "nitrate":
-        tmt.export.export_to_nitrate()
+        if format_ == "nitrate":
+            tmt.export.export_to_nitrate(test)
+        else:
+            echo(test.export(format_=format_))
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
