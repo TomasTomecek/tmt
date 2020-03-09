@@ -40,7 +40,7 @@ class Common(object):
     Takes care of command line context and workdir handling.
     """
 
-    # Command line context, workdir and status
+    # Command line context and workdir
     _context = None
     _workdir = None
 
@@ -231,21 +231,6 @@ class Common(object):
         except OSError as error:
             raise GeneralError(f"Failed to write '{path}'.\n{error}")
 
-    def status(self, status=None):
-        """ Get and set current status, store in workdir """
-        # Check for valid values
-        if status and status not in ['todo', 'done', 'going']:
-            raise GeneralError(f"Invalid status '{status}'.")
-        # Store status
-        if status:
-            self.write('status.txt', status + '\n')
-        # Read status
-        else:
-            try:
-                return self.read('status.txt').strip()
-            except GeneralError:
-                return None
-
     def _workdir_init(self, id_):
         """
         Initialize the work directory
@@ -354,7 +339,7 @@ def variables_to_dictionary(variables):
     return result
 
 
-def dictionary_to_yaml(data):
+def dict_to_yaml(data):
     """ Convert dictionary into yaml """
     output = io.StringIO()
     yaml.safe_dump(
@@ -362,6 +347,11 @@ def dictionary_to_yaml(data):
         encoding='utf-8', allow_unicode=True,
         indent=4, default_flow_style=False)
     return output.getvalue()
+
+
+def yaml_to_dict(data):
+    """ Convert yaml into dictionary """
+    return yaml.safe_load(data)
 
 
 def dict_to_shell(data):

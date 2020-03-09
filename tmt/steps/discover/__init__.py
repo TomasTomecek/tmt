@@ -14,18 +14,24 @@ class Discover(tmt.steps.Step):
 
     def load(self):
         """ Load step data from the workdir """
-        pass
+        super(Discover, self).load()
 
     def save(self):
         """ Save step data to the workdir """
         super(Discover, self).save()
-        # Create 'tests.yaml' with the list of tests for the executor
+
+        # Create tests.yaml with the full test data
+        tests = dict([test.export() for test in self.tests()])
+        self.write('tests.yaml', tmt.utils.dict_to_yaml(tests))
+
+        # Create 'run.yaml' with the list of tests for the executor
         tests = dict([test.export(format_='execute') for test in self.tests()])
-        self.write('tests.yaml', tmt.utils.dictionary_to_yaml(tests))
+        self.write('run.yaml', tmt.utils.dict_to_yaml(tests))
 
     def wake(self):
         """ Wake up the step (process workdir and command line) """
         super(Discover, self).wake()
+
         # Check execute step for possible shell scripts
         scripts = self.plan.execute.opt(
             'script', self.plan.execute.data[0].get('script'))
@@ -43,17 +49,24 @@ class Discover(tmt.steps.Step):
             # Otherwise override current empty definition
             else:
                 self.data[0]['tests'] = tests
-        # Choose the plugin
+
+        # Choose the right plugin and wake it up
         for data in self.data:
             if data['how'] == 'fmf':
                 from tmt.steps.discover.fmf import DiscoverFmf
-                self.steps.append(DiscoverFmf(data, step=self))
+                plugin = DiscoverFmf(data, step=self)
             elif data['how'] == 'shell':
                 from tmt.steps.discover.shell import DiscoverShell
-                self.steps.append(DiscoverShell(data, step=self))
+                plugin = DiscoverShell(data, step=self)
             else:
                 raise tmt.utils.SpecificationError(
                     f"Unknown discover method '{data['how']}'.")
+            self.steps.append(plugin)
+            plugin.wake()
+
+        # Save status and step data (now we know what to do)
+        self.status('todo')
+        self.save()
 
     def show(self):
         """ Show discover details """

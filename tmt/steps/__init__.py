@@ -27,6 +27,7 @@ class Step(tmt.utils.Common):
         # Initialize data
         self.plan = plan
         self.data = data
+        self._status = None
 
         # Create an empty step by default (can be updated from cli)
         if self.data is None:
@@ -49,9 +50,6 @@ class Step(tmt.utils.Common):
             # Ensure that each config has a name
             if 'name' not in data and len(self.data) > 1:
                 raise GeneralError(f"Missing '{self}' name in '{self.plan}'.")
-        # Get or set the status
-        if self.status is None:
-            self.status('todo')
 
     @property
     def enabled(self):
@@ -61,24 +59,55 @@ class Step(tmt.utils.Common):
         except AttributeError:
             return None
 
+    def status(self, status=None):
+        """
+        Get and set current status, store in the workdir
+
+        The meaning of the status is as follows:
+        todo ... config, data and command line processed (we know what to do)
+        done ... the final result of the step stored to workdir (we are done)
+        """
+        # Update status
+        if status is not None:
+            # Check for valid values
+            if status not in ['todo', 'done']:
+                raise GeneralError(f"Invalid status '{status}'.")
+            else:
+                self._status = status
+                self.debug('status', status, color='yellow')
+        # Return status
+        return self._status
+
     def load(self):
-        """ Load step data from the workdir """
-        pass
+        """ Load status and step data from the workdir """
+        try:
+            content = tmt.utils.yaml_to_dict(self.read('step.yaml'))
+            self.status(content['status'])
+            self.data = content['data']
+            log.debug('Successfully loaded step data.')
+        except GeneralError:
+            log.debug('Step data not found.')
 
     def save(self):
-        """ Save step data to the workdir """
-        self.write('steps.yaml', tmt.utils.dictionary_to_yaml(self.data))
+        """ Save status and step data to the workdir """
+        content = dict(status=self.status(), data=self.data)
+        self.write('step.yaml', tmt.utils.dict_to_yaml(content))
 
     def wake(self):
         """ Wake up the step (process workdir and command line) """
-        # Check workdir for possible stored data
-        self.load()
+        # Load stored data (unless forced to repeat with fresh data)
+        if not self.opt('force'):
+            self.load()
 
-        # Override data with command line input
-        for step in self.data:
-            how = self.opt('how')
-            if how:
-                step['how'] = how
+        # Nothing more to do when the step is already done
+        if self.status() == 'done':
+            return
+
+        # Override step data with command line options
+        how = self.opt('how')
+        if how is not None:
+            for data in self.data:
+                    data['how'] = how
 
     def go(self):
         """ Execute the test step """
@@ -119,6 +148,9 @@ class Plugin(tmt.utils.Common):
         super(Plugin, self).__init__(name=name, parent=step)
         self.data = data
         self.step = step
+
+    def wake(self):
+        """ Wake up the plugin (override data with command line) """
 
     def go(self):
         """ Go and perform the plugin task """

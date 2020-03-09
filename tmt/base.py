@@ -89,7 +89,7 @@ class Node(tmt.utils.Common):
         if format_ == 'dict':
             return data
         elif format_ == 'yaml':
-            return tmt.utils.dictionary_to_yaml(data)
+            return tmt.utils.dict_to_yaml(data)
         else:
             raise tmt.utils.GeneralError(
                 f"Invalid test export format '{format_}'.")
