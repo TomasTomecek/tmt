@@ -36,7 +36,8 @@ def export_to_nitrate(fmf_case):
     except KeyError:
         return 0
     nitrate_case = nitrate.TestCase(int(case_id))
-    echo("Test case '{0}' found.".format(fmf_case_attrs['extra-nitrate']))
+    echo(style("Test case '{0}' found.".format(
+        fmf_case_attrs['extra-nitrate']), fg='blue'))
 
     # Components
     try:
@@ -118,7 +119,7 @@ def export_to_nitrate(fmf_case):
         echo(style('arguments: ', fg='green') + "' '")
 
     struct_field = tmt.utils.StructuredField(nitrate_case.notes)
-    echo(style('Structured Field: ', fg='blue'))
+    echo(style('Structured Field: ', fg='green'))
 
     # Mapping of structured field sections to fmf case attributes
     section_to_attr = {'relevancy': 'relevancy', 'description': 'summary',
