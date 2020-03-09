@@ -49,7 +49,7 @@ def export_to_nitrate(fmf_case):
             # TODO exception not existing component
             nitrate_case.components.add(comp_list)
             echo(style('components: ', fg='green') +
-                    ' '.join(fmf_case_attrs['component']))
+                 ' '.join(fmf_case_attrs['component']))
     except KeyError:
         # Defaults to no components
         pass
@@ -70,7 +70,7 @@ def export_to_nitrate(fmf_case):
     tag_list = [nitrate.Tag(tag) for tag in fmf_case_attrs['tag']]
     nitrate_case.tags.add(tag_list)
     echo(style('tags: ', fg='green') +
-            ' '.join(set(fmf_case_attrs['tag'])))
+         ' '.join(set(fmf_case_attrs['tag'])))
 
     # Default tester
     try:
@@ -86,7 +86,7 @@ def export_to_nitrate(fmf_case):
     try:
         nitrate_case.time = fmf_case_attrs['duration']
         echo(style('estimated time: ', fg='green') +
-                fmf_case_attrs['duration'])
+             fmf_case_attrs['duration'])
     except KeyError:
         # Defaults to 5 minutes
         nitrate_case.time = '5m'
@@ -122,13 +122,13 @@ def export_to_nitrate(fmf_case):
 
     # Mapping of structured field sections to fmf case attributes
     section_to_attr = {'relevancy': 'relevancy', 'description': 'summary',
-                        'purpose-file': 'description', 'hardware': 'extra-hardware', 'pepa': 'extra-pepa'}
+                       'purpose-file': 'description', 'hardware': 'extra-hardware', 'pepa': 'extra-pepa'}
 
     for section, attribute in section_to_attr.items():
         try:
             struct_field.set(section, fmf_case_attrs[attribute])
             echo(style(section + ': ', fg='green') +
-                    fmf_case_attrs[attribute].strip())
+                 fmf_case_attrs[attribute].strip())
         except KeyError:
             pass
 
@@ -143,6 +143,7 @@ Any changes made here might be overwritten.
 More information here: https://tmt.readthedocs.io/en/latest/questions.html#nitrate-migration\n\n"""
     if fmf_warning not in struct_field.header():
         struct_field.header(fmf_warning + struct_field.header())
+        echo(style('Added warning about porting to case notes.', fg='green'))
 
     # Saving case.notes with edited StructField
     nitrate_case.notes = struct_field.save()
@@ -169,7 +170,7 @@ def create_fmf_id(name=''):
                          capture_output=True).stdout.strip().decode("utf-8")
 
     git_root = subprocess.run(["git", "rev-parse", "--show-toplevel"],
-                            capture_output=True).stdout.strip().decode("utf-8")
+                              capture_output=True).stdout.strip().decode("utf-8")
 
     fmf_root = fmf.Tree(os.path.abspath('.')).root
 
